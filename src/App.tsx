@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { ChangeEventHandler, useCallback, useEffect, useState } from 'react'
 import './App.css'
 
 function App() {
@@ -6,7 +6,7 @@ function App() {
   const [min, setMin] = useState<number>(1);
   const [max, setMax] = useState<number>(1000000000);
 
-  const handleClickRandom = () => {
+  const handleClickRandom = useCallback(() => {
     if (min > max) {
       alert('Min value should be less than or equal to Max value.');
       return;
@@ -14,7 +14,7 @@ function App() {
 
     const randomInt = Math.floor(Math.random() * (max - min + 1)) + min;
     setRandom(randomInt);
-  };
+  }, [min, max]);
 
   const formatCurrency = (value: number, locale: string = 'en-US', currency: string = 'USD'): string => {
   const formatter = new Intl.NumberFormat(locale, {
@@ -25,19 +25,26 @@ function App() {
   return formatter.format(value);
 }
 
+  const handleChangeMin:ChangeEventHandler<HTMLInputElement> = (e) => {
+    setMin(parseInt(e.target.value))
+  }
 
-const handleClickEnter = (ev: KeyboardEvent) => {
-  ev.key === "Enter" && handleClickRandom();
-}
+  const handleChangeMax:ChangeEventHandler<HTMLInputElement> = (e) => {
+    setMax(parseInt(e.target.value))
+  }
 
+  
   useEffect(() => {
+    const handleClickEnter = (ev: KeyboardEvent) => {
+      ev.key === "Enter" && handleClickRandom();
+    }
     window.addEventListener('keypress', handleClickEnter);
 
     return () => {
       window.removeEventListener('keypress', handleClickEnter);
     }
 
-  }, [])
+  }, [handleClickRandom])
 
   return (
     <div>
@@ -47,7 +54,7 @@ const handleClickEnter = (ev: KeyboardEvent) => {
         <input
           type="number"
           value={min}
-          onChange={(e) => setMin(parseInt(e.target.value))}
+          onChange={handleChangeMin}
         />
       </div>
       <div>
@@ -55,7 +62,7 @@ const handleClickEnter = (ev: KeyboardEvent) => {
         <input
           type="number"
           value={max}
-          onChange={(e) => setMax(parseInt(e.target.value))}
+          onChange={handleChangeMax}
         />
       </div>
       <br/>
